@@ -1,19 +1,38 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
+    public static Player Instance { get; private set; }
     [SerializeField] private float MovementSpeed = 8f;
     [SerializeField] private float RotationSpeed = 20f;
     [SerializeField] private float PlayerCollisionSize = 0.3f;
     [SerializeField] private float InteractionDistance = 2f;
-    [SerializeField] private float PlayerCollisionHight = 8f;
+    [SerializeField] private float PlayerCollisionHeight = 8f; 
     [SerializeField] private LayerMask interactibleLayer;
     [SerializeField] private GameInput gameInput;
 
     private bool isWalking = false;
     private Vector3 lastInteractDirection;
+
     private ClearCounter selectedCounter;
+
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs : EventArgs
+    {
+        public ClearCounter selectedCounter;
+    }
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Debug.LogError("There cant be more then one player instance in the scene at once!");
+        }
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -21,20 +40,9 @@ public class Player : MonoBehaviour
     }
     private void GameInput_OnActionInteract(object sender, System.EventArgs e)
     {
-         Vector2 inputVector = gameInput.GetMovementVectorNormalized();
-
-        Vector3 movementDirection = new Vector3(inputVector.x, 0f, inputVector.y);
-
-        if (movementDirection != Vector3.zero)
+        if (selectedCounter != null)
         {
-            lastInteractDirection = movementDirection;
-        }
-        if (Physics.Raycast(transform.position, lastInteractDirection, out RaycastHit raycastHit, InteractionDistance, interactibleLayer))
-        {
-            if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter))
-            {
-                clearCounter.Interact();
-            }
+            selectedCounter.Interact();
         }
     }
 
@@ -65,17 +73,17 @@ public class Player : MonoBehaviour
             {
                 if (clearCounter != selectedCounter)
                 {
-                    selectedCounter = clearCounter;
+                    SetSelectedCounter(clearCounter);
                 }
             }
             else
             {
-                selectedCounter = null;
+                SetSelectedCounter(null);
             }
         }
         else
         {
-            selectedCounter = null;
+          SetSelectedCounter(null);
         }
     }
 
@@ -86,12 +94,12 @@ public class Player : MonoBehaviour
         Vector2 inputVector = gameInput.GetMovementVectorNormalized();
 
         Vector3 movementDirection = new Vector3(inputVector.x, 0f, inputVector.y);
-        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * PlayerCollisionHight, PlayerCollisionSize, movementDirection, MoveDistance);
+        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * PlayerCollisionHeight, PlayerCollisionSize, movementDirection, MoveDistance);
 
         if (!canMove)
         {
             Vector3 MovementDirectionX = new Vector3(movementDirection.x, 0, 0).normalized;
-            canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * PlayerCollisionHight, PlayerCollisionSize, MovementDirectionX, MoveDistance);
+            canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * PlayerCollisionHeight, PlayerCollisionSize, MovementDirectionX, MoveDistance);
 
             if (canMove)
             {
@@ -100,13 +108,12 @@ public class Player : MonoBehaviour
             else
             {
                 Vector3 MovementDirectionZ = new Vector3(0, 0, movementDirection.z).normalized;
-                canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * PlayerCollisionHight, PlayerCollisionSize, MovementDirectionZ, MoveDistance);
+                canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * PlayerCollisionHeight, PlayerCollisionSize, MovementDirectionZ, MoveDistance);
 
                 if (canMove)
                 {
                     movementDirection = MovementDirectionZ;
                 }
-                else {; }
             }
         }
         if (canMove)
@@ -117,5 +124,15 @@ public class Player : MonoBehaviour
         transform.forward = Vector3.Slerp(transform.forward, movementDirection, Time.deltaTime * RotationSpeed);
 
         isWalking = movementDirection != Vector3.zero;
+    }
+
+    private void SetSelectedCounter(ClearCounter selectedCounter)
+    {
+        this.selectedCounter = selectedCounter;
+
+        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs
+         {
+             selectedCounter = selectedCounter
+        });
     }
 }
