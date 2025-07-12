@@ -14,38 +14,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentVersion: 1.01
   subtype: kitchenchaos
-  lastShownTimestamp: 1752229196
+  lastShownTimestamp: 1752325022
   lastUpdateResponse:
     version: 1.01
     versionUrl: https://unitycodemonkey.com
-  checkedLastUpdateTimestamp: 1752229196
+  checkedLastUpdateTimestamp: 1752325022
   lastQOTDResponse:
-    questionId: 199
-    questionText: 'Does this code compile?
-
-      <p>private void SetTarget(Transform
-      target) {</p>
-
-      <p>&nbsp; &nbsp; GameObject targetGameObject = target;</p>
-
-      <p>}</p>'
-    answerA: No
-    answerB: Yes
-    answerC: Yes if target is not null
-    answerD: 
+    questionId: 200
+    questionText: What is the orthographicSize in a 2D camera?
+    answerA: Units visible horizontally
+    answerB: Units visible vertically
+    answerC: Half the units visible horizontally
+    answerD: Half the units visible vertically
     answerE: 
-  lastQotdTimestamp: 1752229196
+  lastQotdTimestamp: 1752325022
   lastDynamicHeaderResponse:
     topImageUrl: https://codemonkeyexternal.blob.core.windows.net/external/Misc/summer2025CodeMonkeyBundle.png
     topText: All my Courses (and Games) in one Bundle! DEEP DISCOUNT ONLY THIS SUMMER!
     topLink: summer2025bundle
     bottomText: AWESOME NEW Unity Bundle with Tools and Assets 97% OFF!
     bottomLink: humblebundle
-  lastDynamicHeaderTimestamp: 1752229196
+  lastDynamicHeaderTimestamp: 1752325022
   websiteLatestMessage:
     text: <a href="https://cmonkey.co/freecourses">Check out all my FREE courses!
       Click here!</a>
-  websiteLatestMessageTimestamp: 1752229196
+  websiteLatestMessageTimestamp: 1752325022
   websiteLatestVideos:
     videos:
     - youTubeId: ALogEuL6QdA
@@ -56,4 +49,4 @@ MonoBehaviour:
       title: The BEST Worldbuilding Tool is FREE! (ENDS SOON!)
     - youTubeId: mdjap-NtkWs
       title: TOP 10 NEW Games, Made with Unity! (JUNE 2025)
-  websiteLatestVideosTimestamp: 1752229196
+  websiteLatestVideosTimestamp: 1752325022

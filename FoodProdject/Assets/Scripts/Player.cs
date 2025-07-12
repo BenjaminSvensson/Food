@@ -1,8 +1,5 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
-
 public class Player : MonoBehaviour
 {
     public static Player Instance { get; private set; }
