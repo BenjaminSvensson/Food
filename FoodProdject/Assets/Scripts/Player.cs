@@ -1,25 +1,27 @@
 using System;
 using UnityEngine;
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IKitchenObjectParent
 {
     public static Player Instance { get; private set; }
-    [SerializeField] private float MovementSpeed = 8f;
-    [SerializeField] private float RotationSpeed = 20f;
-    [SerializeField] private float PlayerCollisionSize = 0.3f;
-    [SerializeField] private float InteractionDistance = 2f;
-    [SerializeField] private float PlayerCollisionHeight = 8f; 
+    [SerializeField] private float movementSpeed = 8f;
+    [SerializeField] private float rotationSpeed = 20f;
+    [SerializeField] private float playerCollisionSize = 0.3f;
+    [SerializeField] private float interactionDistance = 2f;
+    [SerializeField] private float playerCollisionHeight = 8f;
     [SerializeField] private LayerMask interactibleLayer;
     [SerializeField] private GameInput gameInput;
+    [SerializeField] private Transform kitchenObjectHoldPoint;
 
     private bool isWalking = false;
     private Vector3 lastInteractDirection;
 
-    private ClearCounter selectedCounter;
+    private BaseCounter selectedCounter;
+    private KitchenObject kitchenObject;
 
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
     public class OnSelectedCounterChangedEventArgs : EventArgs
     {
-        public ClearCounter selectedCounter;
+        public BaseCounter selectedCounter;
     }
 
     private void Awake()
@@ -39,7 +41,7 @@ public class Player : MonoBehaviour
     {
         if (selectedCounter != null)
         {
-            selectedCounter.Interact();
+            selectedCounter.Interact(this);
         }
     }
 
@@ -64,13 +66,13 @@ public class Player : MonoBehaviour
         {
             lastInteractDirection = movementDirection;
         }
-        if (Physics.Raycast(transform.position, lastInteractDirection, out RaycastHit raycastHit, InteractionDistance, interactibleLayer))
+        if (Physics.Raycast(transform.position, lastInteractDirection, out RaycastHit raycastHit, interactionDistance, interactibleLayer))
         {
-            if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter))
+            if (raycastHit.transform.TryGetComponent(out BaseCounter baseCounter))
             {
-                if (clearCounter != selectedCounter)
+                if (baseCounter != selectedCounter)
                 {
-                    SetSelectedCounter(clearCounter);
+                    SetSelectedCounter(baseCounter);
                 }
             }
             else
@@ -80,23 +82,23 @@ public class Player : MonoBehaviour
         }
         else
         {
-          SetSelectedCounter(null);
+            SetSelectedCounter(null);
         }
     }
 
     private void HandelMovement()
     {
-        float MoveDistance = MovementSpeed * Time.deltaTime;
+        float MoveDistance = movementSpeed * Time.deltaTime;
 
         Vector2 inputVector = gameInput.GetMovementVectorNormalized();
 
         Vector3 movementDirection = new Vector3(inputVector.x, 0f, inputVector.y);
-        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * PlayerCollisionHeight, PlayerCollisionSize, movementDirection, MoveDistance);
+        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerCollisionHeight, playerCollisionSize, movementDirection, MoveDistance);
 
         if (!canMove)
         {
             Vector3 MovementDirectionX = new Vector3(movementDirection.x, 0, 0).normalized;
-            canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * PlayerCollisionHeight, PlayerCollisionSize, MovementDirectionX, MoveDistance);
+            canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerCollisionHeight, playerCollisionSize, MovementDirectionX, MoveDistance);
 
             if (canMove)
             {
@@ -105,7 +107,7 @@ public class Player : MonoBehaviour
             else
             {
                 Vector3 MovementDirectionZ = new Vector3(0, 0, movementDirection.z).normalized;
-                canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * PlayerCollisionHeight, PlayerCollisionSize, MovementDirectionZ, MoveDistance);
+                canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerCollisionHeight, playerCollisionSize, MovementDirectionZ, MoveDistance);
 
                 if (canMove)
                 {
@@ -118,18 +120,42 @@ public class Player : MonoBehaviour
             transform.position += movementDirection * MoveDistance;
         }
 
-        transform.forward = Vector3.Slerp(transform.forward, movementDirection, Time.deltaTime * RotationSpeed);
+        transform.forward = Vector3.Slerp(transform.forward, movementDirection, Time.deltaTime * rotationSpeed);
 
         isWalking = movementDirection != Vector3.zero;
     }
 
-    private void SetSelectedCounter(ClearCounter selectedCounter)
+    private void SetSelectedCounter(BaseCounter selectedCounter)
     {
         this.selectedCounter = selectedCounter;
 
         OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs
-         {
-             selectedCounter = selectedCounter
+        {
+            selectedCounter = selectedCounter
         });
+    }
+    public Transform GetKitchenFollowTransform()
+    {
+        return kitchenObjectHoldPoint;
+    }
+
+    public void SetKitchenObject(KitchenObject kitchenObject)
+    {
+        this.kitchenObject = kitchenObject;
+    }
+
+    public KitchenObject GetKitchenObject()
+    {
+        return kitchenObject;
+    }
+
+    public void ClearKitchenObject()
+    {
+        kitchenObject = null;
+    }
+
+    public bool HasKitchenObject()
+    {
+        return kitchenObject != null;
     }
 }
