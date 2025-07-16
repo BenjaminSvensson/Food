@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class clearCounter : BaseCounter
+public class CuttingCounter : BaseCounter
 {
-    
     public override void Interact(Player player)
     {
         //Placing Item

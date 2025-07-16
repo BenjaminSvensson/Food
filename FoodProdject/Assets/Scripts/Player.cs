@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 public class Player : MonoBehaviour, IKitchenObjectParent
 {
     public static Player Instance { get; private set; }
@@ -98,7 +99,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         if (!canMove)
         {
             Vector3 MovementDirectionX = new Vector3(movementDirection.x, 0, 0).normalized;
-            canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerCollisionHeight, playerCollisionSize, MovementDirectionX, MoveDistance);
+            canMove = movementDirection.x != 0 && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerCollisionHeight, playerCollisionSize, MovementDirectionX, MoveDistance);
 
             if (canMove)
             {
@@ -107,7 +108,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
             else
             {
                 Vector3 MovementDirectionZ = new Vector3(0, 0, movementDirection.z).normalized;
-                canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerCollisionHeight, playerCollisionSize, MovementDirectionZ, MoveDistance);
+                canMove = movementDirection.z != 0 && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerCollisionHeight, playerCollisionSize, MovementDirectionZ, MoveDistance);
 
                 if (canMove)
                 {
